@@ -1,0 +1,10 @@
+import type { ReactNode } from "react";
+
+export interface ContainerProps {
+  children: ReactNode;
+  className?: string;
+  as?: "div" | "section" | "main" | "header" | "footer";
+}
+export interface RootLayoutProps {
+  children: ReactNode;
+}
