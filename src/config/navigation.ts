@@ -29,4 +29,16 @@ export const mainNavigation: NavigationItem[] = [
     label: "Contacto",
     href: "#contacto",
   },
+  {
+    label: "Dojos",
+    href: "#dojos",
+  },
+  {
+    label: "Equipo",
+    href: "#equipo",
+  },
+  {
+    label: "Transparencia",
+    href: "#transparencia",
+  },
 ];

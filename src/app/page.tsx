@@ -18,6 +18,20 @@ import { EventsSection } from "@/features/home/components/events-section";
 import { eventsContent } from "@/config/events";
 import { TournamentRegistrationSection } from "@/features/home/components/tournament-registration-section";
 import { tournamentRegistrationContent } from "@/config/tournament-registration";
+import { DojosSection } from "@/features/home/components/dojos-section";
+import { dojosContent } from "@/config/dojos";
+import { TeamSection } from "@/features/home/components/team-section";
+import { teamContent } from "@/config/team";
+import { AlliancesSection } from "@/features/home/components/alliances-section";
+import { alliancesContent } from "@/config/alliances";
+import { TransparencySection } from "@/features/home/components/transparency-section";
+import { transparencyContent } from "@/config/transparency";
+import { ContactSection } from "@/features/home/components/contact-section";
+import { contactContent } from "@/config/contact";
+import { PrivacySection } from "@/features/home/components/privacy-section";
+import { privacyContent } from "@/config/privacy";
+import { Footer } from "@/components/layout/footer";
+import { footerContent } from "@/config/footer";
 
 export default function HomePage() {
   return (
@@ -39,12 +53,23 @@ export default function HomePage() {
 
         <NetworkSection content={networkContent} />
 
+        <DojosSection content={dojosContent} />
+
+        <TeamSection content={teamContent} />
+
+        <AlliancesSection content={alliancesContent} />
+
+        <TransparencySection content={transparencyContent} />
+
         <EventsSection content={eventsContent} />
 
         <TournamentRegistrationSection
           content={tournamentRegistrationContent}
         />
+        <ContactSection content={contactContent} />
+        <PrivacySection content={privacyContent} />
       </main>
+      <Footer content={footerContent} />
     </>
   );
 }
