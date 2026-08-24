@@ -41,7 +41,7 @@ export function SectionHeading({
           <>
             <br />
 
-            <span className="text-[var(--kfa-red)]">{highlightedTitle}</span>
+            <span className="text-(--kfa-red)">{highlightedTitle}</span>
           </>
         )}
       </h2>

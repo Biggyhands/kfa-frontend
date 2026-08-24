@@ -4,14 +4,27 @@ export interface AboutValue {
   description: string;
 }
 
+export interface AboutDetailSection {
+  id: string;
+  title?: string;
+  paragraphs?: string[];
+  items?: AboutDetailItem[];
+}
+
+export interface AboutDetailItem {
+  title: string;
+  description: string;
+}
+
 export interface AboutContent {
   eyebrow: string;
   title: string;
   highlightedTitle: string;
   paragraphs: string[];
-  linkLabel: string;
-  linkHref: string;
   values: AboutValue[];
+  historyTitle: string;
+  historySections: AboutDetailSection[];
+  closingMessage: string;
 }
 
 export interface AboutSectionProps {
