@@ -19,9 +19,9 @@ export function Footer({ content }: FooterProps) {
       <Container className="relative py-10 sm:py-12 lg:py-14">
         {/* Parte superior */}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_auto] lg:items-start">
-          {/* Marca */}
+          {/* Marca KFA */}
           <div className="flex items-center gap-4">
-            <div className="relative size-12 shrink-0 border border-white/80 sm:size-14">
+            <div className="relative size-12 shrink-0 overflow-hidden border border-white/80 sm:size-14">
               <Image
                 src="/images/logo.jpeg"
                 alt="Fundación Kyokushin Fight Academy"
@@ -42,7 +42,7 @@ export function Footer({ content }: FooterProps) {
             </div>
           </div>
 
-          {/* Mensaje */}
+          {/* Mensaje institucional */}
           <div className="max-w-sm lg:text-right">
             <p className="text-xs font-bold text-white">
               {content.statementTitle}
@@ -98,31 +98,45 @@ export function Footer({ content }: FooterProps) {
           </nav>
         </div>
 
-        {/* Firma */}
+        {/* Firma del equipo de desarrollo */}
         <div className="mt-7 flex justify-start border-t border-white/10 pt-5 sm:justify-end">
           {content.codedByHref ? (
             <Link
               href={content.codedByHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-baseline gap-1.5 text-[9px] uppercase tracking-[0.12em] text-white/35 transition-colors hover:text-white"
+              className="group inline-flex items-center gap-2.5 text-[9px] tracking-[0.12em] text-white/35 transition-colors hover:text-white"
             >
-              <span className="font-normal normal-case">
-                {content.codedByLabel}
-              </span>
+              <Image
+                src={content.codedByLogo}
+                alt="Deino Code"
+                width={28}
+                height={28}
+                className="h-6 w-auto opacity-60 transition-all duration-200 group-hover:scale-105 group-hover:opacity-100"
+              />
 
-              <span className="font-bold tracking-[0.16em] text-white/60 transition-colors group-hover:text-(--kfa-red)">
-                {content.codedByName}
+              <span className="inline-flex items-baseline gap-1.5">
+                <span className="normal-case">{content.codedByLabel}</span>
+
+                <span className="font-bold uppercase tracking-[0.16em] text-white/60 transition-colors group-hover:text-(--kfa-red)">
+                  {content.codedByName}
+                </span>
               </span>
             </Link>
           ) : (
-            <p className="inline-flex items-baseline gap-1.5 text-[9px] tracking-[0.12em] text-white/35">
-              <span>{content.codedByLabel}</span>
+            <div className="group inline-flex items-center gap-2.5">
+              <p className="inline-flex items-baseline gap-1.5 text-[9px] tracking-[0.12em] text-white/35">
+                <span>{content.codedByLabel}</span>
 
-              <span className="font-bold uppercase tracking-[0.16em] text-white/60">
-                {content.codedByName}
-              </span>
-            </p>
+                <Image
+                  src={content.codedByLogo}
+                  alt="Deino Code"
+                  width={28}
+                  height={28}
+                  className="h-6 w-auto opacity-60 transition-all duration-200 group-hover:scale-105 group-hover:opacity-100"
+                />
+              </p>
+            </div>
           )}
         </div>
       </Container>

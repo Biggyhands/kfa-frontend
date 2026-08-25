@@ -13,8 +13,10 @@ export interface FooterContent {
   domainLabel: string;
   domainHref: string;
   links: FooterLink[];
+
   codedByLabel: string;
   codedByName: string;
+  codedByLogo: string;
   codedByHref?: string;
 }
 

@@ -34,4 +34,5 @@ export const footerContent: FooterContent = {
 
   codedByLabel: "coded by",
   codedByName: "DEIИO CODE",
+  codedByLogo: "/images/LogoDeino.svg",
 };
