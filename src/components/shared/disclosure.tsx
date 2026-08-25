@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/utils/cn";
+
 import type { DisclosureProps } from "@/utils/types";
 
 export function Disclosure({
@@ -16,38 +17,48 @@ export function Disclosure({
 }: DisclosureProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
+  const contentId = id
+    ? `${id}-content`
+    : `disclosure-${title.toLowerCase().replace(/\s+/g, "-")}`;
+
   const isDark = theme === "dark";
 
   return (
     <div
-      id={id}
-      className={cn("border-y", isDark ? "border-white/15" : "border-black/10")}
+      className={cn("border-y", isDark ? "border-white/15" : "border-black/15")}
     >
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
-        aria-controls={id ? `${id}-content` : undefined}
+        aria-controls={contentId}
         className={cn(
-          "flex min-h-16 w-full items-center justify-between gap-6 py-5 text-left",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--kfa-blue)",
+          "group flex w-full cursor-pointer items-center justify-between gap-6 px-0 py-5 text-left transition-colors duration-200 sm:py-6",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--kfa-blue) focus-visible:ring-offset-2",
+          isDark
+            ? "hover:bg-white/5 focus-visible:ring-offset-black"
+            : "hover:bg-black/4 focus-visible:ring-offset-white",
         )}
       >
-        <div>
-          <span
+        <div className="min-w-0 pr-4">
+          <h3
             className={cn(
-              "block text-sm font-bold uppercase tracking-[0.12em]",
-              isDark ? "text-white" : "text-black",
+              "font-[family-name:var(--font-barlow-condensed)] text-base font-black uppercase tracking-[0.04em] transition-colors duration-200 sm:text-lg",
+              isDark
+                ? "text-white group-hover:text-white"
+                : "text-black group-hover:text-(--kfa-red)",
             )}
           >
             {title}
-          </span>
+          </h3>
 
           {description && (
             <p
               className={cn(
-                "mt-2 max-w-3xl text-sm leading-6",
-                isDark ? "text-white/55" : "text-black/55",
+                "mt-2 max-w-4xl text-sm leading-6 transition-colors duration-200",
+                isDark
+                  ? "text-white/60 group-hover:text-white/80"
+                  : "text-black/55 group-hover:text-black/75",
               )}
             >
               {description}
@@ -57,24 +68,34 @@ export function Disclosure({
 
         <ChevronDown
           aria-hidden="true"
-          size={20}
+          size={18}
           className={cn(
-            "shrink-0 transition-transform duration-300",
+            "shrink-0 transition-all duration-300",
+            isDark
+              ? "text-white/80 group-hover:text-white"
+              : "text-black/70 group-hover:text-(--kfa-red)",
+            "group-hover:translate-y-0.5",
             isOpen && "rotate-180",
-            isDark ? "text-white" : "text-black",
           )}
         />
       </button>
 
       <div
-        id={id ? `${id}-content` : undefined}
+        id={contentId}
         className={cn(
-          "grid transition-[grid-template-rows,opacity] duration-300",
+          "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
           isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
         )}
       >
         <div className="overflow-hidden">
-          <div className="pb-8 pt-2">{children}</div>
+          <div
+            className={cn(
+              "pb-8 pt-2 sm:pb-10",
+              isDark ? "text-white" : "text-black",
+            )}
+          >
+            {children}
+          </div>
         </div>
       </div>
     </div>

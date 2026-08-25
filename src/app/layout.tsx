@@ -20,7 +20,7 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: {
-    default: "KFA Plus",
+    default: "Kyokushin Fight Academy | KFA Plus",
     template: "%s | KFA Plus",
   },
   description:

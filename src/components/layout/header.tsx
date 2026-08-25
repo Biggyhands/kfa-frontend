@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 import { Container } from "@/components/ui/container";
 import { MobileMenu } from "@/components/layout/mobile-menu";
@@ -41,8 +42,15 @@ export function Header({ items }: HeaderProps) {
             href="/"
             className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kfa-blue-light)]"
           >
-            <div className="grid size-11 place-items-center border border-white/30 bg-black font-black">
-              KFA
+            <div className="relative size-10 shrink-0 overflow-hidden border border-white/30 sm:size-11">
+              <Image
+                src="/images/logo.jpeg"
+                alt="Kyokushin Fight Academy"
+                fill
+                sizes="44px"
+                className="object-contain p-1"
+                priority
+              />
             </div>
 
             <div className="hidden sm:block">
