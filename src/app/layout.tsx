@@ -4,6 +4,7 @@ import { Barlow_Condensed, Inter } from "next/font/google";
 import "./globals.css";
 
 import type { RootLayoutProps } from "@/utils/types";
+import { QueryProvider } from "@/providers/query-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,7 +32,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="es">
       <body className={`${inter.variable} ${barlowCondensed.variable}`}>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

@@ -48,3 +48,27 @@ export interface EventsSectionProps {
 export interface EventCardProps {
   event: EventItem;
 }
+
+export type EventStatus = "draft" | "published" | "closed" | string;
+
+export interface Event {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+
+  event_date: string;
+  end_date: string | null;
+  registration_deadline: string | null;
+
+  venue_name: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+
+  status: EventStatus;
+  registration_enabled: boolean;
+
+  created_at: string;
+  updated_at: string;
+}

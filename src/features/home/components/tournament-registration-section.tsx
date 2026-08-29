@@ -1,91 +1,134 @@
-import { CalendarDays, MapPin, Trophy } from "lucide-react";
+import { CalendarDays, MapPin, ShieldCheck, Trophy } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
-import { SectionHeading } from "@/components/shared/section-heading";
+import { EventRegistrationStatus } from "@/features/tournament-registration/components/event-registration-status";
+import { TournamentRegistrationFlow } from "@/features/tournament-registration/components/tournament-registration-flow";
+import { COLOMBIA_OPEN_SLUG } from "@/features/tournament-registration/constants/tournament.constants";
 
-import { TournamentRegistrationForm } from "./tournament-registration-form";
-
-import type { TournamentRegistrationSectionProps } from "@/utils/types";
-
-export function TournamentRegistrationSection({
-  content,
-}: TournamentRegistrationSectionProps) {
+export function TournamentRegistrationSection() {
   return (
     <section
       id="inscripcion-colombia-open"
-      className="scroll-mt-24 bg-white py-20 text-black sm:py-24 lg:py-32"
+      className="scroll-mt-24 bg-white py-16 text-black sm:py-20 lg:py-24"
     >
       <Container>
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20 xl:gap-28">
-          <div>
-            <SectionHeading
-              eyebrow={content.eyebrow}
-              title={content.title}
-              highlightedTitle={content.highlightedTitle}
+        <div className="mx-auto max-w-7xl">
+          {/* Cabecera del evento */}
+          <div className="relative overflow-hidden border border-black/10 bg-white shadow-[0_28px_80px_rgba(0,0,0,0.07)]">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-(--kfa-blue) via-(--kfa-blue-light) to-(--kfa-red)"
             />
 
-            <p className="mt-6 max-w-lg text-sm leading-7 text-black/60 sm:text-base">
-              {content.description}
-            </p>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_0.85fr]">
+              {/* Presentación */}
+              <div className="relative p-6 sm:p-8 lg:p-10 xl:p-12">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center bg-(--kfa-red) text-white">
+                    <Trophy aria-hidden="true" size={18} />
+                  </div>
 
-            <div className="mt-10 border-t border-black/10">
-              <div className="flex gap-4 border-b border-black/10 py-5">
-                <Trophy
-                  aria-hidden="true"
-                  size={19}
-                  className="shrink-0 text-(--kfa-red)"
-                />
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-(--kfa-red)">
+                    Colombia Open 2026
+                  </p>
+                </div>
 
-                <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-black/40">
-                    Evento
+                <h2 className="mt-6 max-w-4xl font-[family-name:var(--font-barlow-condensed)] text-4xl font-black uppercase leading-[0.9] tracking-[-0.035em] sm:text-5xl lg:text-6xl xl:text-7xl">
+                  Inscripción de delegaciones y competidores
+                </h2>
+
+                <p className="mt-6 max-w-2xl text-sm leading-7 text-black/60 sm:text-base">
+                  Registra tu delegación y administra los competidores que
+                  participarán en el Colombia Open 2026.
+                </p>
+
+                <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-black/10 pt-6">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck
+                      aria-hidden="true"
+                      size={16}
+                      className="text-(--kfa-blue)"
+                    />
+
+                    <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/50">
+                      Gestión segura
+                    </span>
+                  </div>
+
+                  <div className="h-3 w-px bg-black/15" />
+
+                  <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/50">
+                    Delegaciones
                   </span>
 
-                  <strong className="mt-1 block text-sm">
-                    {content.eventName}
-                  </strong>
+                  <div className="h-3 w-px bg-black/15" />
+
+                  <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/50">
+                    Competidores
+                  </span>
                 </div>
               </div>
 
-              <div className="flex gap-4 border-b border-black/10 py-5">
-                <CalendarDays
-                  aria-hidden="true"
-                  size={19}
-                  className="shrink-0 text-(--kfa-red)"
-                />
+              {/* Resumen */}
+              <div className="border-t border-black/10 bg-(--kfa-blue)/[0.045] p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10 xl:p-12">
+                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-(--kfa-blue)">
+                  Información del evento
+                </p>
 
-                <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-black/40">
-                    Fecha
-                  </span>
+                <div className="mt-7 space-y-7">
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-9 shrink-0 items-center justify-center bg-white text-(--kfa-blue) shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                      <CalendarDays aria-hidden="true" size={17} />
+                    </div>
 
-                  <strong className="mt-1 block text-sm">
-                    {content.eventDate}
-                  </strong>
-                </div>
-              </div>
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/40">
+                        Fecha
+                      </p>
 
-              <div className="flex gap-4 border-b border-black/10 py-5">
-                <MapPin
-                  aria-hidden="true"
-                  size={19}
-                  className="shrink-0 text-(--kfa-red)"
-                />
+                      <p className="mt-1 font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase leading-none sm:text-2xl">
+                        20 de septiembre de 2026
+                      </p>
+                    </div>
+                  </div>
 
-                <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-black/40">
-                    Lugar
-                  </span>
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-9 shrink-0 items-center justify-center bg-white text-(--kfa-blue) shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                      <MapPin aria-hidden="true" size={17} />
+                    </div>
 
-                  <strong className="mt-1 block text-sm leading-6">
-                    {content.eventLocation}
-                  </strong>
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/40">
+                        Lugar
+                      </p>
+
+                      <p className="mt-1 font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase leading-none sm:text-2xl">
+                        Bogotá D.C.
+                      </p>
+
+                      <p className="mt-2 text-xs leading-5 text-black/50">
+                        Coliseo de la Universidad Javeriana
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-(--kfa-blue)/15 pt-6">
+                    <EventRegistrationStatus />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <TournamentRegistrationForm eventName={content.eventName} />
+          {/* Flujo de inscripción */}
+          <div className="relative mt-8 lg:mt-10">
+            <div
+              aria-hidden="true"
+              className="absolute -left-3 top-0 hidden h-16 w-1 bg-(--kfa-red) lg:block"
+            />
+
+            <TournamentRegistrationFlow slug={COLOMBIA_OPEN_SLUG} />
+          </div>
         </div>
       </Container>
     </section>

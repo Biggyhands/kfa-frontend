@@ -20,6 +20,8 @@ export type { ButtonLinkProps } from "./button.types";
 export type { TrustItem, TrustStripProps } from "./trust.types";
 
 export type {
+  Event,
+  EventStatus,
   EventAccent,
   EventCardProps,
   EventItem,
@@ -28,6 +30,7 @@ export type {
   UpcomingEvent,
   UpcomingEventsProps,
 } from "./event.types";
+
 export type { SectionHeadingProps } from "./section.types";
 
 export type {
@@ -124,3 +127,48 @@ export type {
 } from "./privacy.types";
 
 export type { FooterContent, FooterLink, FooterProps } from "./footer.types";
+
+export type {
+  ApiError,
+  ApiErrorDetails,
+  ApiErrorResponse,
+  ApiSuccessResponse,
+} from "./api.types";
+
+export type {
+  DelegationCreateInput,
+  DelegationCreateResponse,
+  DelegationFormProps,
+  DelegationFormValues,
+  DelegationSession,
+  DelegationSessionState,
+  UseDelegationSessionOptions,
+  TournamentRegistrationFlowProps,
+  DelegationManagerProps,
+} from "./delegation.types";
+
+export type {
+  AssignmentSource,
+  ClassificationStatus,
+  CompetitionCategory,
+  CompetitionModality,
+  Competitor,
+  CompetitorCreateInput,
+  CompetitorDeleteResponse,
+  CompetitorEntry,
+  CompetitorEntryInput,
+  CompetitorFormProps,
+  CompetitorFormValues,
+  CompetitorGrade,
+  CompetitorGradeCode,
+  CompetitorMutationCategory,
+  CompetitorMutationEntry,
+  CompetitorMutationResponse,
+  CompetitorSex,
+  CompetitorUpdateInput,
+  KumiteExperienceLevel,
+  TechnicalLevel,
+  GradeBeltProps,
+} from "./competitor.types";
+
+export type { QueryProviderProps } from "./provider.types";
