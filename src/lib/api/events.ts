@@ -1,3 +1,5 @@
+// src/lib/api/events.ts
+
 import { apiRequest } from "./client";
 
 import type { Event } from "@/utils/types";

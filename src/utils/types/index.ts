@@ -1,3 +1,5 @@
+export * from "./event.types";
+
 export type { BaseComponentProps, ChildrenProps } from "./common.types";
 
 export type { ContainerProps, RootLayoutProps } from "./layout.types";
@@ -18,18 +20,6 @@ export type {
 export type { ButtonLinkProps } from "./button.types";
 
 export type { TrustItem, TrustStripProps } from "./trust.types";
-
-export type {
-  Event,
-  EventStatus,
-  EventAccent,
-  EventCardProps,
-  EventItem,
-  EventsContent,
-  EventsSectionProps,
-  UpcomingEvent,
-  UpcomingEventsProps,
-} from "./event.types";
 
 export type { SectionHeadingProps } from "./section.types";
 
@@ -65,13 +55,6 @@ export type {
   NetworkContent,
   NetworkSectionProps,
 } from "./network.types";
-
-export type {
-  TournamentRegistrationContent,
-  TournamentRegistrationFormProps,
-  TournamentRegistrationFormValues,
-  TournamentRegistrationSectionProps,
-} from "./form.types";
 
 export type { DisclosureProps } from "./disclosure.types";
 
@@ -132,6 +115,7 @@ export type {
   ApiError,
   ApiErrorDetails,
   ApiErrorResponse,
+  ApiRequestOptions,
   ApiSuccessResponse,
 } from "./api.types";
 
@@ -140,11 +124,13 @@ export type {
   DelegationCreateResponse,
   DelegationFormProps,
   DelegationFormValues,
+  DelegationManagerProps,
+  DelegationRecoveryFormProps,
+  DelegationRecoveryInput,
   DelegationSession,
   DelegationSessionState,
-  UseDelegationSessionOptions,
   TournamentRegistrationFlowProps,
-  DelegationManagerProps,
+  UseDelegationSessionOptions,
 } from "./delegation.types";
 
 export type {
@@ -166,9 +152,9 @@ export type {
   CompetitorMutationResponse,
   CompetitorSex,
   CompetitorUpdateInput,
+  GradeBeltProps,
   KumiteExperienceLevel,
   TechnicalLevel,
-  GradeBeltProps,
 } from "./competitor.types";
 
 export type { QueryProviderProps } from "./provider.types";

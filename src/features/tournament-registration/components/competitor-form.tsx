@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Check,
   LoaderCircle,
+  Save,
   Sword,
   Swords,
   UserRound,
@@ -19,7 +20,7 @@ import {
   kumiteExperienceOptions,
 } from "@/features/tournament-registration/constants/tournament.constants";
 import { useEvent } from "@/features/tournament-registration/hooks/use-event";
-import { createCompetitor } from "@/lib/api/competitors";
+import { createCompetitor, updateCompetitor } from "@/lib/api/competitors";
 import { competitorSchema } from "@/utils/schemas/competitor.schema";
 
 import type {
@@ -28,6 +29,7 @@ import type {
   CompetitorCreateInput,
   CompetitorFormProps,
   CompetitorFormValues,
+  CompetitorUpdateInput,
 } from "@/utils/types";
 
 const inputClassName =
@@ -77,12 +79,18 @@ function getAgeAtEventDate(
 export function CompetitorForm({
   slug,
   session,
+  mode = "create",
+  competitor,
   onCreated,
+  onUpdated,
+  onInvalidSession,
   onCancel,
 }: CompetitorFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
 
   const eventQuery = useEvent(slug);
+
+  const isEditing = mode === "edit";
 
   const {
     register,
@@ -91,28 +99,41 @@ export function CompetitorForm({
     setValue,
     setError,
     clearErrors,
+
     formState: { errors },
   } = useForm<CompetitorFormValues>({
     resolver: zodResolver(competitorSchema),
 
     defaultValues: {
-      fullName: "",
-      birthDate: "",
-      heightCm: undefined,
-      weightKg: undefined,
-      gradeCode: "white",
-      sex: undefined,
-      modalities: [],
-      kumiteExperienceLevel: undefined,
-      healthProvider: "",
-      guardianName: "",
-      email: "",
+      fullName: competitor?.fullName ?? "",
+
+      birthDate: competitor?.birthDate ?? "",
+
+      heightCm: competitor?.heightCm,
+
+      weightKg: competitor?.weightKg,
+
+      gradeCode: competitor?.grade?.code ?? "white",
+
+      sex: competitor?.sex ?? undefined,
+
+      modalities: competitor?.entries.map((entry) => entry.modality) ?? [],
+
+      kumiteExperienceLevel: competitor?.kumiteExperienceLevel ?? undefined,
+
+      healthProvider: competitor?.healthProvider ?? "",
+
+      guardianName: competitor?.guardianName ?? "",
+
+      email: competitor?.email ?? "",
     },
   });
 
   const modalities = watch("modalities") ?? [];
 
   const birthDate = watch("birthDate");
+
+  const gradeCode = watch("gradeCode");
 
   const kumiteExperienceLevel = watch("kumiteExperienceLevel");
 
@@ -124,60 +145,112 @@ export function CompetitorForm({
 
   const isMinor = ageAtEvent !== null && ageAtEvent < 18;
 
+  const debutantAllowed =
+    gradeCode === "white" ||
+    gradeCode === "orange" ||
+    gradeCode === "blue" ||
+    gradeCode === "yellow";
+
+  function handleApiError(error: ApiError) {
+    if (error.code === "VALIDATION_ERROR") {
+      setFormError(
+        "Revisa la información ingresada. Algunos datos no son válidos.",
+      );
+
+      return;
+    }
+
+    if (error.code === "KUMITE_DEBUTANT_NOT_ALLOWED_FOR_GRADE") {
+      setFormError(
+        "La experiencia Debutante en Kumite solo está disponible para cinturones blanco, naranja, azul y amarillo.",
+      );
+
+      return;
+    }
+
+    if (
+      error.code === "INVALID_DELEGATION_TOKEN" ||
+      error.code === "DELEGATION_TOKEN_REQUIRED"
+    ) {
+      onInvalidSession();
+
+      return;
+    }
+
+    if (error.code === "COMPETITOR_NOT_FOUND") {
+      setFormError(
+        "Este competidor ya no se encuentra disponible. Actualiza el listado e intenta nuevamente.",
+      );
+
+      return;
+    }
+
+    if (error.code === "REGISTRATION_CLOSED") {
+      setFormError("El periodo de inscripción para este evento ya finalizó.");
+
+      return;
+    }
+
+    if (error.code === "REGISTRATION_NOT_AVAILABLE") {
+      setFormError("La inscripción no está disponible en este momento.");
+
+      return;
+    }
+
+    if (error.code === "TOO_MANY_REQUESTS") {
+      setFormError(
+        "Se han realizado demasiadas solicitudes. Espera unos minutos antes de intentarlo nuevamente.",
+      );
+
+      return;
+    }
+
+    setFormError(
+      isEditing
+        ? "No fue posible actualizar al competidor. Intenta nuevamente."
+        : "No fue posible registrar al competidor. Intenta nuevamente.",
+    );
+  }
+
   const createCompetitorMutation = useMutation({
     mutationFn: (payload: CompetitorCreateInput) =>
       createCompetitor(slug, session.delegationId, session.token, payload),
 
-    onSuccess: (competitor) => {
+    onSuccess: (result) => {
       setFormError(null);
-      onCreated(competitor);
+
+      onCreated?.(result);
     },
 
-    onError: (error: ApiError) => {
-      if (error.code === "VALIDATION_ERROR") {
-        setFormError(
-          "Revisa la información ingresada. Algunos datos no son válidos para registrar al competidor.",
-        );
+    onError: handleApiError,
+  });
 
-        return;
+  const updateCompetitorMutation = useMutation({
+    mutationFn: (payload: CompetitorUpdateInput) => {
+      if (!competitor) {
+        throw new Error("Competitor is required in edit mode.");
       }
 
-      if (
-        error.code === "INVALID_DELEGATION_TOKEN" ||
-        error.code === "DELEGATION_TOKEN_REQUIRED"
-      ) {
-        setFormError(
-          "La sesión de gestión ya no es válida. Ingresa nuevamente desde el enlace enviado por correo.",
-        );
-
-        return;
-      }
-
-      if (error.code === "REGISTRATION_CLOSED") {
-        setFormError("El periodo de inscripción para este evento ya finalizó.");
-
-        return;
-      }
-
-      if (error.code === "REGISTRATION_NOT_AVAILABLE") {
-        setFormError("La inscripción no está disponible en este momento.");
-
-        return;
-      }
-
-      if (error.code === "TOO_MANY_REQUESTS") {
-        setFormError(
-          "Se han realizado demasiadas solicitudes. Espera unos minutos antes de intentarlo nuevamente.",
-        );
-
-        return;
-      }
-
-      setFormError(
-        "No fue posible registrar al competidor. Intenta nuevamente.",
+      return updateCompetitor(
+        slug,
+        session.delegationId,
+        competitor.id,
+        session.token,
+        payload,
       );
     },
+
+    onSuccess: (result) => {
+      setFormError(null);
+
+      onUpdated?.(result);
+    },
+
+    onError: handleApiError,
   });
+
+  const isSubmitting =
+    createCompetitorMutation.isPending || updateCompetitorMutation.isPending;
 
   useEffect(() => {
     if (participatesKumite) {
@@ -191,6 +264,10 @@ export function CompetitorForm({
     clearErrors("kumiteExperienceLevel");
   }, [participatesKumite, setValue, clearErrors]);
 
+  /*
+   * Un menor no puede permanecer
+   * seleccionado como Open.
+   */
   useEffect(() => {
     if (!isMinor || kumiteExperienceLevel !== "open") {
       return;
@@ -203,6 +280,26 @@ export function CompetitorForm({
 
     clearErrors("kumiteExperienceLevel");
   }, [isMinor, kumiteExperienceLevel, setValue, clearErrors]);
+
+  /*
+   * Debutante solo está permitido
+   * hasta cinturón amarillo.
+   *
+   * Si el usuario cambia a verde
+   * o superior, limpiamos la opción.
+   */
+  useEffect(() => {
+    if (debutantAllowed || kumiteExperienceLevel !== "debutant") {
+      return;
+    }
+
+    setValue("kumiteExperienceLevel", undefined, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    clearErrors("kumiteExperienceLevel");
+  }, [debutantAllowed, kumiteExperienceLevel, setValue, clearErrors]);
 
   function toggleModality(modality: CompetitionModality) {
     if (modalities.includes(modality)) {
@@ -238,6 +335,7 @@ export function CompetitorForm({
         "guardianName",
         {
           type: "manual",
+
           message:
             "Debes ingresar el nombre del padre, madre o acudiente para un competidor menor de 18 años.",
         },
@@ -252,8 +350,20 @@ export function CompetitorForm({
     if (isMinor && values.kumiteExperienceLevel === "open") {
       setError("kumiteExperienceLevel", {
         type: "manual",
+
         message:
           "La categoría Open no está disponible para competidores menores de 18 años.",
+      });
+
+      return;
+    }
+
+    if (!debutantAllowed && values.kumiteExperienceLevel === "debutant") {
+      setError("kumiteExperienceLevel", {
+        type: "manual",
+
+        message:
+          "La experiencia Debutante solo está disponible para cinturones blanco, naranja, azul y amarillo.",
       });
 
       return;
@@ -301,6 +411,20 @@ export function CompetitorForm({
         : {}),
     };
 
+    if (isEditing) {
+      if (!competitor) {
+        setFormError(
+          "No fue posible identificar al competidor que deseas editar.",
+        );
+
+        return;
+      }
+
+      updateCompetitorMutation.mutate(payload);
+
+      return;
+    }
+
     createCompetitorMutation.mutate(payload);
   }
 
@@ -308,27 +432,27 @@ export function CompetitorForm({
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="overflow-hidden border border-black/10 bg-white"
+      className="overflow-hidden border border-black/10 bg-white shadow-[0_20px_55px_rgba(0,0,0,0.045)]"
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 border-b border-black/10 p-5 sm:p-6 lg:px-8 lg:py-7">
-        <div className="flex items-start gap-4">
-          <div className="flex size-11 shrink-0 items-center justify-center bg-black text-white">
+      <div className="flex items-start justify-between gap-3 border-b border-black/10 p-4 min-[360px]:p-5 sm:p-6 lg:px-8 lg:py-7">
+        <div className="flex min-w-0 items-start gap-3 min-[360px]:gap-4">
+          <div className="flex size-10 shrink-0 items-center justify-center bg-black text-white min-[360px]:size-11">
             <UserRound aria-hidden="true" size={19} />
           </div>
 
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-(--kfa-red)">
-              Nuevo competidor
+          <div className="min-w-0">
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-(--kfa-red)">
+              {isEditing ? "Editar competidor" : "Nuevo competidor"}
             </p>
 
-            <h4 className="mt-1 font-[family-name:var(--font-barlow-condensed)] text-3xl font-black uppercase leading-none sm:text-4xl">
-              Datos del competidor
+            <h4 className="mt-1 font-[family-name:var(--font-barlow-condensed)] text-2xl font-black uppercase leading-none min-[360px]:text-3xl sm:text-4xl">
+              {isEditing ? "Actualiza los datos" : "Datos del competidor"}
             </h4>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-black/55">
-              Registra los datos personales, técnicos y las modalidades en las
-              que participará.
+            <p className="mt-2 max-w-2xl text-xs leading-5 text-black/55 min-[360px]:text-sm min-[360px]:leading-6">
+              {isEditing
+                ? "Modifica la información necesaria. La clasificación será actualizada por el sistema cuando corresponda."
+                : "Registra los datos personales, técnicos y las modalidades en las que participará."}
             </p>
           </div>
         </div>
@@ -336,8 +460,9 @@ export function CompetitorForm({
         <button
           type="button"
           onClick={onCancel}
+          disabled={isSubmitting}
           aria-label="Cerrar formulario"
-          className="flex size-11 shrink-0 cursor-pointer items-center justify-center border border-black/10 text-black/50 transition-colors hover:border-black/30 hover:text-black"
+          className="flex size-10 shrink-0 cursor-pointer items-center justify-center border border-black/10 text-black/50 transition-colors hover:border-black/30 hover:text-black disabled:cursor-not-allowed disabled:opacity-50 min-[360px]:size-11"
         >
           <X aria-hidden="true" size={18} />
         </button>
@@ -346,7 +471,7 @@ export function CompetitorForm({
       {formError && (
         <div
           role="alert"
-          className="mx-5 mt-5 flex items-start gap-3 border-l-4 border-(--kfa-red) bg-(--kfa-red)/5 p-4 sm:mx-6 lg:mx-8"
+          className="mx-4 mt-5 flex items-start gap-3 border-l-4 border-(--kfa-red) bg-(--kfa-red)/5 p-4 min-[360px]:mx-5 sm:mx-6 lg:mx-8"
         >
           <AlertCircle
             aria-hidden="true"
@@ -358,16 +483,8 @@ export function CompetitorForm({
         </div>
       )}
 
-      {/*
-        Mobile:
-        todo continúa apilado.
-
-        Desktop:
-        Personal | Técnica + modalidades + experiencia.
-      */}
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        {/* Columna izquierda */}
-        <section className="p-5 sm:p-6 lg:border-r lg:border-black/10 lg:p-8 xl:p-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="p-4 min-[360px]:p-5 sm:p-6 lg:border-r lg:border-black/10 lg:p-8 xl:p-9">
           <div className="flex items-center gap-3">
             <span className="flex size-7 items-center justify-center bg-black text-[9px] font-bold text-white">
               01
@@ -378,7 +495,7 @@ export function CompetitorForm({
             </h5>
           </div>
 
-          <div className="mt-7 grid grid-cols-1 gap-x-7 gap-y-7 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="mt-6 grid grid-cols-1 gap-x-7 gap-y-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="fullName" className={labelClassName}>
                 Nombre completo *
@@ -504,23 +621,22 @@ export function CompetitorForm({
           </div>
 
           {isMinor && (
-            <div className="mt-8 border-l-4 border-(--kfa-blue) bg-(--kfa-blue)/5 p-4">
+            <div className="mt-6 border-l-4 border-(--kfa-blue) bg-(--kfa-blue)/5 p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--kfa-blue)">
                 Competidor menor de edad
               </p>
 
               <p className="mt-2 text-xs leading-5 text-black/60">
-                Deberás registrar un padre, madre o acudiente antes de completar
-                la inscripción.
+                Será obligatorio registrar un padre, madre o acudiente antes de
+                completar la inscripción.
               </p>
             </div>
           )}
         </section>
 
-        {/* Columna derecha */}
-        <section className="border-t border-black/10 p-5 sm:p-6 lg:border-t-0 lg:p-8 xl:p-10">
+        <section className="border-t border-black/10 p-4 min-[360px]:p-5 sm:p-6 lg:border-t-0 lg:p-8 xl:p-9">
           <div className="flex items-center gap-3">
-            <span className="flex size-7 items-center justify-center bg-black text-[9px] font-bold text-white">
+            <span className="flex size-7 items-center justify-center bg-(--kfa-blue) text-[9px] font-bold text-white">
               02
             </span>
 
@@ -529,148 +645,161 @@ export function CompetitorForm({
             </h5>
           </div>
 
-          <div className="mt-7">
-            <label htmlFor="gradeCode" className={labelClassName}>
-              Grado actual *
-            </label>
+          <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[0.7fr_1.3fr]">
+            <div>
+              <label htmlFor="gradeCode" className={labelClassName}>
+                Grado actual *
+              </label>
 
-            <select
-              id="gradeCode"
-              {...register("gradeCode")}
-              aria-invalid={Boolean(errors.gradeCode)}
-              className={inputClassName}
-            >
-              {competitorGradeOptions.map((grade) => (
-                <option key={grade.value} value={grade.value}>
-                  {grade.label}
-                </option>
-              ))}
-            </select>
+              <select
+                id="gradeCode"
+                {...register("gradeCode")}
+                aria-invalid={Boolean(errors.gradeCode)}
+                className={inputClassName}
+              >
+                {competitorGradeOptions.map((grade) => (
+                  <option key={grade.value} value={grade.value}>
+                    {grade.label}
+                  </option>
+                ))}
+              </select>
 
-            {errors.gradeCode && (
-              <p className={errorClassName}>{errors.gradeCode.message}</p>
-            )}
-          </div>
-
-          <div className="mt-8 border-t border-black/10 pt-7">
-            <p className={labelClassName}>Modalidades *</p>
-
-            <p className="mb-4 text-xs leading-5 text-black/50">
-              Selecciona Kata, Kumite o ambas.
-            </p>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {[
-                {
-                  value: "kata" as const,
-                  label: "Kata",
-                  description: "Formas y ejecución técnica.",
-                },
-                {
-                  value: "kumite" as const,
-                  label: "Kumite",
-                  description: "Competencia de combate.",
-                },
-              ].map((option) => {
-                const selected = modalities.includes(option.value);
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => toggleModality(option.value)}
-                    className={
-                      selected
-                        ? "flex min-h-24 cursor-pointer items-start justify-between gap-3 border-2 border-(--kfa-red) bg-(--kfa-red)/5 p-4 text-left"
-                        : "flex min-h-24 cursor-pointer items-start justify-between gap-3 border border-black/15 p-4 text-left transition-colors hover:border-black/35"
-                    }
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        {option.value === "kata" ? (
-                          <Sword
-                            aria-hidden="true"
-                            size={17}
-                            className={
-                              selected ? "text-(--kfa-red)" : "text-black/40"
-                            }
-                          />
-                        ) : (
-                          <Swords
-                            aria-hidden="true"
-                            size={17}
-                            className={
-                              selected ? "text-(--kfa-red)" : "text-black/40"
-                            }
-                          />
-                        )}
-
-                        <span className="text-xs font-bold uppercase tracking-[0.12em]">
-                          {option.label}
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-xs leading-5 text-black/50">
-                        {option.description}
-                      </p>
-                    </div>
-
-                    <span
-                      className={
-                        selected
-                          ? "flex size-6 shrink-0 items-center justify-center bg-(--kfa-red) text-white"
-                          : "size-6 shrink-0 border border-black/15"
-                      }
-                    >
-                      {selected && <Check aria-hidden="true" size={14} />}
-                    </span>
-                  </button>
-                );
-              })}
+              {errors.gradeCode && (
+                <p className={errorClassName}>{errors.gradeCode.message}</p>
+              )}
             </div>
 
-            {errors.modalities && (
-              <p className={errorClassName}>{errors.modalities.message}</p>
-            )}
+            <div>
+              <p className={labelClassName}>Modalidades *</p>
+
+              <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
+                {[
+                  {
+                    value: "kata" as const,
+
+                    label: "Kata",
+
+                    description: "Formas y técnica.",
+                  },
+                  {
+                    value: "kumite" as const,
+
+                    label: "Kumite",
+
+                    description: "Combate.",
+                  },
+                ].map((option) => {
+                  const selected = modalities.includes(option.value);
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => toggleModality(option.value)}
+                      className={
+                        selected
+                          ? "flex min-h-20 cursor-pointer items-start justify-between gap-3 border-2 border-(--kfa-red) bg-(--kfa-red)/5 p-3.5 text-left"
+                          : "flex min-h-20 cursor-pointer items-start justify-between gap-3 border border-black/15 p-3.5 text-left transition-colors hover:border-black/35"
+                      }
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          {option.value === "kata" ? (
+                            <Sword
+                              aria-hidden="true"
+                              size={16}
+                              className={
+                                selected ? "text-(--kfa-red)" : "text-black/40"
+                              }
+                            />
+                          ) : (
+                            <Swords
+                              aria-hidden="true"
+                              size={16}
+                              className={
+                                selected ? "text-(--kfa-red)" : "text-black/40"
+                              }
+                            />
+                          )}
+
+                          <span className="text-[10px] font-bold uppercase tracking-[0.12em]">
+                            {option.label}
+                          </span>
+                        </div>
+
+                        <p className="mt-1.5 text-[11px] leading-4 text-black/45">
+                          {option.description}
+                        </p>
+                      </div>
+
+                      <span
+                        className={
+                          selected
+                            ? "flex size-5 shrink-0 items-center justify-center bg-(--kfa-red) text-white"
+                            : "size-5 shrink-0 border border-black/15"
+                        }
+                      >
+                        {selected && <Check aria-hidden="true" size={12} />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {errors.modalities && (
+                <p className={errorClassName}>{errors.modalities.message}</p>
+              )}
+            </div>
           </div>
 
           {participatesKumite && (
-            <div className="mt-8 border-t border-black/10 pt-7">
+            <div className="mt-7 border-t border-black/10 pt-6">
               <p className={labelClassName}>Experiencia en Kumite *</p>
 
-              <div className="mt-4 space-y-2.5">
+              <div className="mt-3 grid grid-cols-1 gap-2.5 xl:grid-cols-3">
                 {kumiteExperienceOptions.map((option) => {
                   const isOpenDisabled = isMinor && option.value === "open";
+
+                  const isDebutantDisabled =
+                    !debutantAllowed && option.value === "debutant";
+
+                  const isDisabled = isOpenDisabled || isDebutantDisabled;
 
                   return (
                     <label
                       key={option.value}
                       className={
-                        isOpenDisabled
-                          ? "flex min-h-16 cursor-not-allowed items-start gap-3 border border-black/10 bg-black/[0.025] p-3.5 opacity-45"
-                          : "flex min-h-16 cursor-pointer items-start gap-3 border border-black/15 p-3.5 transition-colors has-checked:border-(--kfa-blue) has-checked:bg-(--kfa-blue)/5"
+                        isDisabled
+                          ? "flex min-h-24 cursor-not-allowed items-start gap-3 border border-black/10 bg-black/[0.025] p-3.5 opacity-45 xl:min-h-28"
+                          : "flex min-h-24 cursor-pointer items-start gap-3 border border-black/15 p-3.5 transition-colors has-checked:border-(--kfa-blue) has-checked:bg-(--kfa-blue)/5 xl:min-h-28"
                       }
                     >
                       <input
                         type="radio"
                         value={option.value}
-                        disabled={isOpenDisabled}
+                        disabled={isDisabled}
                         {...register("kumiteExperienceLevel")}
                         className="mt-1 size-4 shrink-0 accent-(--kfa-blue)"
                       />
 
                       <span>
-                        <span className="block text-xs font-bold uppercase tracking-[0.12em]">
+                        <span className="block text-[10px] font-bold uppercase tracking-[0.12em]">
                           {option.label}
                         </span>
 
-                        <span className="mt-1 block text-xs leading-5 text-black/55">
+                        <span className="mt-1.5 block text-[11px] leading-4 text-black/55">
                           {option.description}
                         </span>
 
                         {isOpenDisabled && (
-                          <span className="mt-1 block text-xs font-semibold text-(--kfa-red)">
-                            No disponible para menores de 18 años.
+                          <span className="mt-1.5 block text-[11px] font-semibold leading-4 text-(--kfa-red)">
+                            No disponible para menores.
+                          </span>
+                        )}
+
+                        {isDebutantDisabled && (
+                          <span className="mt-1.5 block text-[11px] font-semibold leading-4 text-(--kfa-red)">
+                            Disponible únicamente hasta cinturón amarillo.
                           </span>
                         )}
                       </span>
@@ -689,10 +818,9 @@ export function CompetitorForm({
         </section>
       </div>
 
-      {/* Información adicional */}
-      <section className="border-t border-black/10 bg-black/[0.018] p-5 sm:p-6 lg:px-8 lg:py-8 xl:px-10">
+      <section className="border-t border-black/10 bg-(--kfa-blue)/[0.025] p-4 min-[360px]:p-5 sm:p-6 lg:px-8 lg:py-7">
         <div className="flex items-center gap-3">
-          <span className="flex size-7 items-center justify-center bg-black text-[9px] font-bold text-white">
+          <span className="flex size-7 items-center justify-center bg-(--kfa-red) text-[9px] font-bold text-white">
             03
           </span>
 
@@ -702,12 +830,12 @@ export function CompetitorForm({
             </h5>
 
             <p className="mt-1 text-xs text-black/45">
-              Datos de salud y contacto del participante.
+              Salud y contacto del participante.
             </p>
           </div>
         </div>
 
-        <div className="mt-7 grid grid-cols-1 gap-x-8 gap-y-7 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <label htmlFor="healthProvider" className={labelClassName}>
               Entidad de salud *
@@ -747,7 +875,7 @@ export function CompetitorForm({
             )}
           </div>
 
-          <div className={isMinor ? "lg:rounded-none" : ""}>
+          <div>
             <label htmlFor="guardianName" className={labelClassName}>
               Padre, madre o acudiente
               {isMinor ? " *" : ""}
@@ -779,12 +907,11 @@ export function CompetitorForm({
         </div>
       </section>
 
-      {/* Acciones */}
-      <div className="flex flex-col-reverse gap-3 border-t border-black/10 bg-white p-5 sm:flex-row sm:justify-end sm:p-6 lg:px-8">
+      <div className="flex flex-col-reverse gap-3 border-t border-black/10 bg-white p-4 min-[360px]:p-5 sm:flex-row sm:justify-end sm:p-6 lg:px-8">
         <button
           type="button"
           onClick={onCancel}
-          disabled={createCompetitorMutation.isPending}
+          disabled={isSubmitting}
           className="min-h-12 cursor-pointer border border-black/15 px-6 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           Cancelar
@@ -792,17 +919,23 @@ export function CompetitorForm({
 
         <button
           type="submit"
-          disabled={createCompetitorMutation.isPending}
+          disabled={isSubmitting}
           className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-3 bg-(--kfa-blue) px-7 text-xs font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-(--kfa-blue-dark) disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {createCompetitorMutation.isPending ? (
+          {isSubmitting ? (
             <>
               <LoaderCircle
                 aria-hidden="true"
                 size={16}
                 className="animate-spin"
               />
-              Registrando...
+
+              {isEditing ? "Guardando..." : "Registrando..."}
+            </>
+          ) : isEditing ? (
+            <>
+              <Save aria-hidden="true" size={16} />
+              Guardar cambios
             </>
           ) : (
             <>

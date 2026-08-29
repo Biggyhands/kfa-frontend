@@ -72,3 +72,7 @@ export interface Event {
   created_at: string;
   updated_at: string;
 }
+
+export interface EventRegistrationSummaryProps {
+  slug: string;
+}

@@ -2,8 +2,6 @@ import type { z } from "zod";
 
 import type { delegationSchema } from "@/utils/schemas/delegation.schema";
 
-export type DelegationFormValues = z.infer<typeof delegationSchema>;
-
 export interface DelegationCreateInput {
   organizationName: string;
   dojoName: string;
@@ -19,28 +17,21 @@ export interface DelegationCreateInput {
 export interface DelegationCreateResponse {
   id: string;
   event_id: string;
-
   organization_name: string;
   dojo_name: string;
   responsible_professor: string;
-
   contact_name: string;
   contact_email: string;
   normalized_email: string;
-
   whatsapp: string;
   country: string;
   city: string;
-
-  status: "pending" | string;
-
+  status: string;
   privacy_accepted: boolean;
   privacy_accepted_at: string;
   privacy_policy_version: string;
-
   created_at: string;
   updated_at: string;
-
   editToken: string;
 }
 
@@ -49,15 +40,20 @@ export interface DelegationSession {
   token: string;
 }
 
+export type DelegationFormValues = z.infer<typeof delegationSchema>;
+
 export interface DelegationFormProps {
   slug: string;
+
   onSuccess: (session: DelegationSession) => void;
 }
 
 export interface DelegationSessionState {
   session: DelegationSession | null;
   isReady: boolean;
+
   saveSession: (session: DelegationSession) => void;
+
   clearSession: () => void;
 }
 
@@ -73,4 +69,12 @@ export interface DelegationManagerProps {
   slug: string;
   session: DelegationSession;
   onInvalidSession: () => void;
+}
+
+export interface DelegationRecoveryInput {
+  email: string;
+}
+
+export interface DelegationRecoveryFormProps {
+  slug: string;
 }

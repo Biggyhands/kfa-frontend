@@ -17,7 +17,6 @@ import { networkContent } from "@/config/network";
 import { EventsSection } from "@/features/home/components/events-section";
 import { eventsContent } from "@/config/events";
 import { TournamentRegistrationSection } from "@/features/home/components/tournament-registration-section";
-import { tournamentRegistrationContent } from "@/config/tournament-registration";
 import { DojosSection } from "@/features/home/components/dojos-section";
 import { dojosContent } from "@/config/dojos";
 import { TeamSection } from "@/features/home/components/team-section";
@@ -63,9 +62,7 @@ export default function HomePage() {
 
         <EventsSection content={eventsContent} />
 
-        <TournamentRegistrationSection
-          content={tournamentRegistrationContent}
-        />
+        <TournamentRegistrationSection />
         <ContactSection content={contactContent} />
         <PrivacySection content={privacyContent} />
       </main>

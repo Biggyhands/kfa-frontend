@@ -204,10 +204,17 @@ export interface CompetitorFormValues {
 
 export interface CompetitorFormProps {
   slug: string;
-
   session: DelegationSession;
 
-  onCreated: (competitor: CompetitorMutationResponse) => void;
+  mode?: "create" | "edit";
+
+  competitor?: Competitor;
+
+  onCreated?: (competitor: CompetitorMutationResponse) => void;
+
+  onUpdated?: (competitor: CompetitorMutationResponse) => void;
+
+  onInvalidSession: () => void;
 
   onCancel: () => void;
 }
