@@ -78,9 +78,8 @@ export const alliancesContent: AlliancesContent = {
     "Aquí puedes ver las modalidades de apoyo, lo que puede financiar un aliado y las formas de crear una alianza.",
 
   detailsIntro: [
-    "Esta página convierte el propósito social de KFA en una invitación clara, confiable y movilizadora para empresas, instituciones educativas, entidades públicas, organizaciones sociales, cooperantes, donantes, patrocinadores y voluntarios.",
-
-    "Su objetivo es mostrar que apoyar a la Fundación significa invertir en formación deportiva, bienestar, inclusión, cultura, convivencia y desarrollo humano con impacto real en la comunidad.",
+    "En la Fundación KFA abrimos las puertas a empresas, instituciones, donantes y voluntarios que quieren ser parte de un cambio positivo. Creemos que las grandes transformaciones ocurren cuando sumamos esfuerzos; por eso, este espacio es una invitación abierta para conocer nuestro trabajo y descubrir cómo, desde tu sector, puedes unirte a nuestra causa de forma transparente y segura.",
+    "Nuestro propósito es demostrar que apoyar a KFA es mucho más que una donación: es una inversión directa en el futuro de la comunidad. Cada alianza y respaldo que recibimos se traduce en programas reales de formación deportiva, inclusión, cultura y bienestar integral, devolviéndole a los jóvenes espacios de convivencia y oportunidades de desarrollo humano.",
   ],
 
   detailSections: [

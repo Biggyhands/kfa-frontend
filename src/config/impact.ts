@@ -45,9 +45,8 @@ export const impactContent: ImpactContent = {
     "Aquí está el contenido completo sobre los programas, objetivos, beneficiarios, alianzas y acciones sociales de KFA.",
 
   detailsIntro: [
-    "La página de impacto social debe mostrar que KFA no existe únicamente para ofrecer clases, sino para generar transformación medible en personas, familias, comunidades, instituciones y grupos de práctica.",
-
-    "Esta sección comunica las problemáticas que la Fundación atiende, los públicos beneficiarios, los programas que pueden recibir apoyo, las alianzas posibles, los mecanismos de seguimiento y la manera en que cada aporte contribuye al cumplimiento de actividades de interés general y acceso a la comunidad.",
+    "En la KFA no nos limitamos a dictar clases; buscamos generar un cambio real y visible en las personas, sus familias y sus comunidades.",
+    "Aquí conocerás de cerca los problemas que resolvemos, a quiénes apoyamos y cómo funcionan nuestras alianzas. Te mostramos exactamente a dónde va cada aporte y el impacto positivo que logramos juntos en la sociedad.",
   ],
 
   detailSections: [

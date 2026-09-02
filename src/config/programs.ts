@@ -163,7 +163,7 @@ export const programsContent: ProgramsSectionContent = {
         {
           title: "Bienestar y recreación",
           description:
-            "Actividades para fortalecer cuerpo y mente, mejorar hábitos saludables, promover integración familiar y usar el tiempo libre de manera positiva.",
+            "Actividades para fortalecer cuerpo y mente, mejorar hábitos saludables, promover integración familiar y usar el tiempo de manera positiva.",
         },
         {
           title: "Programas comunitarios e institucionales",

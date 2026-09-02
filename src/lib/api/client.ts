@@ -11,11 +11,11 @@ if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL no está configurada.");
 }
 
-function buildHeaders(options?: ApiRequestOptions): Headers {
-  const headers = new Headers(options?.headers);
+function buildHeaders(options: RequestInit, token?: string): Headers {
+  const headers = new Headers(options.headers);
 
   if (
-    options?.body &&
+    options.body &&
     !(options.body instanceof FormData) &&
     !headers.has("Content-Type")
   ) {
@@ -26,8 +26,8 @@ function buildHeaders(options?: ApiRequestOptions): Headers {
     headers.set("Accept", "application/json");
   }
 
-  if (options?.token) {
-    headers.set("X-Delegation-Token", options.token);
+  if (token) {
+    headers.set("X-Delegation-Token", token);
   }
 
   return headers;
@@ -40,7 +40,7 @@ async function parseErrorResponse(response: Response): Promise<ApiError> {
     payload = (await response.json()) as ApiErrorResponse;
   } catch {
     // El backend podría responder
-    // sin JSON en un error inesperado.
+    // sin JSON ante un error inesperado.
   }
 
   return {
@@ -62,12 +62,40 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const url = `${API_URL}${path}`;
 
-  const { token: _token, ...requestOptions } = options ?? {};
+  const token = options?.token;
+
+  const requestOptions: RequestInit = options
+    ? {
+        method: options.method,
+
+        body: options.body,
+
+        cache: options.cache,
+
+        credentials: options.credentials,
+
+        integrity: options.integrity,
+
+        keepalive: options.keepalive,
+
+        mode: options.mode,
+
+        redirect: options.redirect,
+
+        referrer: options.referrer,
+
+        referrerPolicy: options.referrerPolicy,
+
+        signal: options.signal,
+
+        next: options.next,
+      }
+    : {};
 
   const response = await fetch(url, {
     ...requestOptions,
 
-    headers: buildHeaders(options),
+    headers: buildHeaders(options ?? {}, token),
   });
 
   if (!response.ok) {

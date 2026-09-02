@@ -138,7 +138,7 @@ export function ContactSection({ content }: ContactSectionProps) {
                 </section>
               ))}
 
-              {/* Respuesta automática */}
+              {/* Respuesta automática 
               <section className="border-t border-white/25 pt-8 lg:pt-10">
                 <h3 className="font-[family-name:var(--font-barlow-condensed)] text-2xl font-black uppercase tracking-tight sm:text-3xl lg:text-4xl">
                   Respuesta automática sugerida
@@ -150,7 +150,7 @@ export function ContactSection({ content }: ContactSectionProps) {
                   </p>
                 </div>
               </section>
-
+*/}
               {/* Cierre */}
               <div className="border-l-4 border-white bg-black/15 p-6 sm:p-8 lg:p-10">
                 <p className="max-w-5xl font-[family-name:var(--font-barlow-condensed)] text-2xl font-black uppercase leading-tight sm:text-3xl lg:text-4xl">

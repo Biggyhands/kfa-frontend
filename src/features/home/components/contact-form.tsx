@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUpRight } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { ContactDynamicFields } from "./contact-dynamic-fields";
 
@@ -15,23 +16,30 @@ export function ContactForm({ content }: ContactFormProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
+
     formState: { errors, isSubmitting },
   } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
+
     shouldUnregister: true,
 
     defaultValues: {
       name: "",
       phone: "",
       interest: "trial-class",
+
       message: content.interests[0]?.defaultMessage ?? "",
+
       privacyAccepted: false,
     },
   });
 
-  const interest = watch("interest");
+  const interest = useWatch({
+    control,
+    name: "interest",
+  });
 
   useEffect(() => {
     const selectedInterest = content.interests.find(
@@ -171,7 +179,6 @@ export function ContactForm({ content }: ContactFormProps) {
       </h3>
 
       <div className="mt-8 space-y-7">
-        {/* Nombre */}
         <div>
           <label
             htmlFor="contact-name"
@@ -197,7 +204,6 @@ export function ContactForm({ content }: ContactFormProps) {
           )}
         </div>
 
-        {/* Teléfono */}
         <div>
           <label
             htmlFor="contact-phone"
@@ -223,7 +229,6 @@ export function ContactForm({ content }: ContactFormProps) {
           )}
         </div>
 
-        {/* Motivo */}
         <div>
           <label
             htmlFor="contact-interest"
@@ -252,14 +257,12 @@ export function ContactForm({ content }: ContactFormProps) {
           )}
         </div>
 
-        {/* Campos dinámicos */}
         <ContactDynamicFields
-          interest={interest}
+          interest={interest ?? "trial-class"}
           register={register}
           errors={errors}
         />
 
-        {/* Mensaje */}
         <div>
           <label
             htmlFor="contact-message"
@@ -284,7 +287,6 @@ export function ContactForm({ content }: ContactFormProps) {
           )}
         </div>
 
-        {/* Privacidad */}
         <div>
           <label className="flex cursor-pointer items-start gap-3">
             <input
@@ -306,7 +308,6 @@ export function ContactForm({ content }: ContactFormProps) {
           )}
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}

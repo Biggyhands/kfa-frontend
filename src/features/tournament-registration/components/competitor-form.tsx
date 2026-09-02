@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import {
   competitorGradeOptions,
@@ -33,7 +33,7 @@ import type {
 } from "@/utils/types";
 
 const inputClassName =
-  "min-h-12 w-full border-b border-black/20 bg-transparent px-0 text-sm text-black outline-none transition-colors placeholder:text-black/35 focus:border-(--kfa-blue)";
+  "min-h-12 min-w-0 max-w-full w-full border-b border-black/20 bg-transparent px-0 text-sm text-black outline-none transition-colors placeholder:text-black/35 focus:border-(--kfa-blue)";
 
 const labelClassName =
   "mb-2 block text-[10px] font-bold uppercase tracking-[0.12em] text-black";
@@ -95,7 +95,7 @@ export function CompetitorForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     setError,
     clearErrors,
@@ -129,18 +129,31 @@ export function CompetitorForm({
     },
   });
 
-  const modalities = watch("modalities") ?? [];
+  const modalities =
+    useWatch({
+      control,
+      name: "modalities",
+    }) ?? [];
 
-  const birthDate = watch("birthDate");
+  const birthDate = useWatch({
+    control,
+    name: "birthDate",
+  });
 
-  const gradeCode = watch("gradeCode");
+  const gradeCode = useWatch({
+    control,
+    name: "gradeCode",
+  });
 
-  const kumiteExperienceLevel = watch("kumiteExperienceLevel");
+  const kumiteExperienceLevel = useWatch({
+    control,
+    name: "kumiteExperienceLevel",
+  });
 
   const participatesKumite = modalities.includes("kumite");
 
   const ageAtEvent = eventQuery.data
-    ? getAgeAtEventDate(birthDate, eventQuery.data.event_date)
+    ? getAgeAtEventDate(birthDate ?? "", eventQuery.data.event_date)
     : null;
 
   const isMinor = ageAtEvent !== null && ageAtEvent < 18;
@@ -264,10 +277,6 @@ export function CompetitorForm({
     clearErrors("kumiteExperienceLevel");
   }, [participatesKumite, setValue, clearErrors]);
 
-  /*
-   * Un menor no puede permanecer
-   * seleccionado como Open.
-   */
   useEffect(() => {
     if (!isMinor || kumiteExperienceLevel !== "open") {
       return;
@@ -281,13 +290,6 @@ export function CompetitorForm({
     clearErrors("kumiteExperienceLevel");
   }, [isMinor, kumiteExperienceLevel, setValue, clearErrors]);
 
-  /*
-   * Debutante solo está permitido
-   * hasta cinturón amarillo.
-   *
-   * Si el usuario cambia a verde
-   * o superior, limpiamos la opción.
-   */
   useEffect(() => {
     if (debutantAllowed || kumiteExperienceLevel !== "debutant") {
       return;
@@ -335,7 +337,6 @@ export function CompetitorForm({
         "guardianName",
         {
           type: "manual",
-
           message:
             "Debes ingresar el nombre del padre, madre o acudiente para un competidor menor de 18 años.",
         },
@@ -350,7 +351,6 @@ export function CompetitorForm({
     if (isMinor && values.kumiteExperienceLevel === "open") {
       setError("kumiteExperienceLevel", {
         type: "manual",
-
         message:
           "La categoría Open no está disponible para competidores menores de 18 años.",
       });
@@ -361,7 +361,6 @@ export function CompetitorForm({
     if (!debutantAllowed && values.kumiteExperienceLevel === "debutant") {
       setError("kumiteExperienceLevel", {
         type: "manual",
-
         message:
           "La experiencia Debutante solo está disponible para cinturones blanco, naranja, azul y amarillo.",
       });
@@ -432,9 +431,9 @@ export function CompetitorForm({
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="overflow-hidden border border-black/10 bg-white shadow-[0_20px_55px_rgba(0,0,0,0.045)]"
+      className="min-w-0 max-w-full overflow-hidden border border-black/10 bg-white shadow-[0_20px_55px_rgba(0,0,0,0.045)]"
     >
-      <div className="flex items-start justify-between gap-3 border-b border-black/10 p-4 min-[360px]:p-5 sm:p-6 lg:px-8 lg:py-7">
+      <div className="flex min-w-0 items-start justify-between gap-3 border-b border-black/10 p-4 min-[360px]:p-5 sm:p-6 lg:px-8 lg:py-7">
         <div className="flex min-w-0 items-start gap-3 min-[360px]:gap-4">
           <div className="flex size-10 shrink-0 items-center justify-center bg-black text-white min-[360px]:size-11">
             <UserRound aria-hidden="true" size={19} />
@@ -445,7 +444,7 @@ export function CompetitorForm({
               {isEditing ? "Editar competidor" : "Nuevo competidor"}
             </p>
 
-            <h4 className="mt-1 font-[family-name:var(--font-barlow-condensed)] text-2xl font-black uppercase leading-none min-[360px]:text-3xl sm:text-4xl">
+            <h4 className="mt-1 wrap-break-word font-[family-name:var(--font-barlow-condensed)] text-2xl font-black uppercase leading-none min-[360px]:text-3xl sm:text-4xl">
               {isEditing ? "Actualiza los datos" : "Datos del competidor"}
             </h4>
 
@@ -471,7 +470,7 @@ export function CompetitorForm({
       {formError && (
         <div
           role="alert"
-          className="mx-4 mt-5 flex items-start gap-3 border-l-4 border-(--kfa-red) bg-(--kfa-red)/5 p-4 min-[360px]:mx-5 sm:mx-6 lg:mx-8"
+          className="mx-4 mt-5 flex min-w-0 items-start gap-3 border-l-4 border-(--kfa-red) bg-(--kfa-red)/5 p-4 min-[360px]:mx-5 sm:mx-6 lg:mx-8"
         >
           <AlertCircle
             aria-hidden="true"
@@ -479,24 +478,26 @@ export function CompetitorForm({
             className="mt-0.5 shrink-0 text-(--kfa-red)"
           />
 
-          <p className="text-sm leading-6 text-black/65">{formError}</p>
+          <p className="min-w-0 wrap-break-word text-sm leading-6 text-black/65">
+            {formError}
+          </p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="p-4 min-[360px]:p-5 sm:p-6 lg:border-r lg:border-black/10 lg:p-8 xl:p-9">
-          <div className="flex items-center gap-3">
-            <span className="flex size-7 items-center justify-center bg-black text-[9px] font-bold text-white">
+      <div className="grid min-w-0 grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="min-w-0 p-4 min-[360px]:p-5 sm:p-6 lg:border-r lg:border-black/10 lg:p-8 xl:p-9">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex size-7 shrink-0 items-center justify-center bg-black text-[9px] font-bold text-white">
               01
             </span>
 
-            <h5 className="font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase sm:text-2xl">
+            <h5 className="min-w-0 wrap-break-word font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase sm:text-2xl">
               Información personal
             </h5>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-x-7 gap-y-6 sm:grid-cols-2">
-            <div className="sm:col-span-2">
+          <div className="mt-6 grid min-w-0 grid-cols-1 gap-x-7 gap-y-6 sm:grid-cols-2">
+            <div className="min-w-0 sm:col-span-2">
               <label htmlFor="fullName" className={labelClassName}>
                 Nombre completo *
               </label>
@@ -516,7 +517,7 @@ export function CompetitorForm({
               )}
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label htmlFor="birthDate" className={labelClassName}>
                 Fecha de nacimiento *
               </label>
@@ -547,7 +548,7 @@ export function CompetitorForm({
               )}
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label htmlFor="sex" className={labelClassName}>
                 Sexo
                 {participatesKumite ? " *" : ""}
@@ -571,7 +572,7 @@ export function CompetitorForm({
               )}
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label htmlFor="heightCm" className={labelClassName}>
                 Estatura (cm) *
               </label>
@@ -595,7 +596,7 @@ export function CompetitorForm({
               )}
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label htmlFor="weightKg" className={labelClassName}>
                 Peso (kg) *
               </label>
@@ -621,7 +622,7 @@ export function CompetitorForm({
           </div>
 
           {isMinor && (
-            <div className="mt-6 border-l-4 border-(--kfa-blue) bg-(--kfa-blue)/5 p-4">
+            <div className="mt-6 min-w-0 border-l-4 border-(--kfa-blue) bg-(--kfa-blue)/5 p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--kfa-blue)">
                 Competidor menor de edad
               </p>
@@ -634,19 +635,19 @@ export function CompetitorForm({
           )}
         </section>
 
-        <section className="border-t border-black/10 p-4 min-[360px]:p-5 sm:p-6 lg:border-t-0 lg:p-8 xl:p-9">
-          <div className="flex items-center gap-3">
-            <span className="flex size-7 items-center justify-center bg-(--kfa-blue) text-[9px] font-bold text-white">
+        <section className="min-w-0 border-t border-black/10 p-4 min-[360px]:p-5 sm:p-6 lg:border-t-0 lg:p-8 xl:p-9">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex size-7 shrink-0 items-center justify-center bg-(--kfa-blue) text-[9px] font-bold text-white">
               02
             </span>
 
-            <h5 className="font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase sm:text-2xl">
+            <h5 className="min-w-0 wrap-break-word font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase sm:text-2xl">
               Información técnica
             </h5>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[0.7fr_1.3fr]">
-            <div>
+          <div className="mt-6 grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[0.7fr_1.3fr]">
+            <div className="min-w-0">
               <label htmlFor="gradeCode" className={labelClassName}>
                 Grado actual *
               </label>
@@ -669,23 +670,19 @@ export function CompetitorForm({
               )}
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className={labelClassName}>Modalidades *</p>
 
-              <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
+              <div className="grid min-w-0 grid-cols-1 gap-3 min-[360px]:grid-cols-2">
                 {[
                   {
                     value: "kata" as const,
-
                     label: "Kata",
-
                     description: "Formas y técnica.",
                   },
                   {
                     value: "kumite" as const,
-
                     label: "Kumite",
-
                     description: "Combate.",
                   },
                 ].map((option) => {
@@ -698,18 +695,20 @@ export function CompetitorForm({
                       onClick={() => toggleModality(option.value)}
                       className={
                         selected
-                          ? "flex min-h-20 cursor-pointer items-start justify-between gap-3 border-2 border-(--kfa-red) bg-(--kfa-red)/5 p-3.5 text-left"
-                          : "flex min-h-20 cursor-pointer items-start justify-between gap-3 border border-black/15 p-3.5 text-left transition-colors hover:border-black/35"
+                          ? "flex min-h-20 min-w-0 cursor-pointer items-start justify-between gap-3 border-2 border-(--kfa-red) bg-(--kfa-red)/5 p-3.5 text-left"
+                          : "flex min-h-20 min-w-0 cursor-pointer items-start justify-between gap-3 border border-black/15 p-3.5 text-left transition-colors hover:border-black/35"
                       }
                     >
-                      <div>
-                        <div className="flex items-center gap-2">
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 items-center gap-2">
                           {option.value === "kata" ? (
                             <Sword
                               aria-hidden="true"
                               size={16}
                               className={
-                                selected ? "text-(--kfa-red)" : "text-black/40"
+                                selected
+                                  ? "shrink-0 text-(--kfa-red)"
+                                  : "shrink-0 text-black/40"
                               }
                             />
                           ) : (
@@ -717,12 +716,14 @@ export function CompetitorForm({
                               aria-hidden="true"
                               size={16}
                               className={
-                                selected ? "text-(--kfa-red)" : "text-black/40"
+                                selected
+                                  ? "shrink-0 text-(--kfa-red)"
+                                  : "shrink-0 text-black/40"
                               }
                             />
                           )}
 
-                          <span className="text-[10px] font-bold uppercase tracking-[0.12em]">
+                          <span className="min-w-0 text-[10px] font-bold uppercase tracking-[0.12em]">
                             {option.label}
                           </span>
                         </div>
@@ -753,10 +754,10 @@ export function CompetitorForm({
           </div>
 
           {participatesKumite && (
-            <div className="mt-7 border-t border-black/10 pt-6">
+            <div className="mt-7 min-w-0 border-t border-black/10 pt-6">
               <p className={labelClassName}>Experiencia en Kumite *</p>
 
-              <div className="mt-3 grid grid-cols-1 gap-2.5 xl:grid-cols-3">
+              <div className="mt-3 grid min-w-0 grid-cols-1 gap-2.5 xl:grid-cols-3">
                 {kumiteExperienceOptions.map((option) => {
                   const isOpenDisabled = isMinor && option.value === "open";
 
@@ -770,8 +771,8 @@ export function CompetitorForm({
                       key={option.value}
                       className={
                         isDisabled
-                          ? "flex min-h-24 cursor-not-allowed items-start gap-3 border border-black/10 bg-black/[0.025] p-3.5 opacity-45 xl:min-h-28"
-                          : "flex min-h-24 cursor-pointer items-start gap-3 border border-black/15 p-3.5 transition-colors has-checked:border-(--kfa-blue) has-checked:bg-(--kfa-blue)/5 xl:min-h-28"
+                          ? "flex min-h-24 min-w-0 cursor-not-allowed items-start gap-3 border border-black/10 bg-black/[0.025] p-3.5 opacity-45 xl:min-h-28"
+                          : "flex min-h-24 min-w-0 cursor-pointer items-start gap-3 border border-black/15 p-3.5 transition-colors has-checked:border-(--kfa-blue) has-checked:bg-(--kfa-blue)/5 xl:min-h-28"
                       }
                     >
                       <input
@@ -782,7 +783,7 @@ export function CompetitorForm({
                         className="mt-1 size-4 shrink-0 accent-(--kfa-blue)"
                       />
 
-                      <span>
+                      <span className="min-w-0">
                         <span className="block text-[10px] font-bold uppercase tracking-[0.12em]">
                           {option.label}
                         </span>
@@ -818,14 +819,14 @@ export function CompetitorForm({
         </section>
       </div>
 
-      <section className="border-t border-black/10 bg-(--kfa-blue)/[0.025] p-4 min-[360px]:p-5 sm:p-6 lg:px-8 lg:py-7">
-        <div className="flex items-center gap-3">
-          <span className="flex size-7 items-center justify-center bg-(--kfa-red) text-[9px] font-bold text-white">
+      <section className="min-w-0 border-t border-black/10 bg-(--kfa-blue)/[0.025] p-4 min-[360px]:p-5 sm:p-6 lg:px-8 lg:py-7">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-7 shrink-0 items-center justify-center bg-(--kfa-red) text-[9px] font-bold text-white">
             03
           </span>
 
-          <div>
-            <h5 className="font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase sm:text-2xl">
+          <div className="min-w-0">
+            <h5 className="wrap-break-word font-[family-name:var(--font-barlow-condensed)] text-xl font-black uppercase sm:text-2xl">
               Información adicional
             </h5>
 
@@ -835,8 +836,8 @@ export function CompetitorForm({
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
-          <div>
+        <div className="mt-6 grid min-w-0 grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="min-w-0">
             <label htmlFor="healthProvider" className={labelClassName}>
               Entidad de salud *
             </label>
@@ -855,7 +856,7 @@ export function CompetitorForm({
             )}
           </div>
 
-          <div>
+          <div className="min-w-0">
             <label htmlFor="email" className={labelClassName}>
               Correo del competidor
             </label>
@@ -875,7 +876,7 @@ export function CompetitorForm({
             )}
           </div>
 
-          <div>
+          <div className="min-w-0">
             <label htmlFor="guardianName" className={labelClassName}>
               Padre, madre o acudiente
               {isMinor ? " *" : ""}
@@ -907,7 +908,7 @@ export function CompetitorForm({
         </div>
       </section>
 
-      <div className="flex flex-col-reverse gap-3 border-t border-black/10 bg-white p-4 min-[360px]:p-5 sm:flex-row sm:justify-end sm:p-6 lg:px-8">
+      <div className="flex min-w-0 flex-col-reverse gap-3 border-t border-black/10 bg-white p-4 min-[360px]:p-5 sm:flex-row sm:justify-end sm:p-6 lg:px-8">
         <button
           type="button"
           onClick={onCancel}

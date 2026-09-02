@@ -25,7 +25,6 @@ import { deleteCompetitor } from "@/lib/api/competitors";
 import type {
   ApiError,
   Competitor,
-  CompetitorMutationResponse,
   DelegationManagerProps,
 } from "@/utils/types";
 
@@ -75,8 +74,9 @@ export function DelegationManager({
     eventQuery.data?.status === "published" &&
     eventQuery.data.registration_enabled === true;
 
-  const isFormOpen = isCreatingCompetitor || editingCompetitor !== null;
-
+  const isFormOpen =
+    registrationsAvailable &&
+    (isCreatingCompetitor || editingCompetitor !== null);
   const deleteCompetitorMutation = useMutation({
     mutationFn: (competitorId: string) =>
       deleteCompetitor(slug, session.delegationId, competitorId, session.token),
@@ -158,16 +158,6 @@ export function DelegationManager({
       onInvalidSession();
     }
   }, [error, onInvalidSession]);
-
-  useEffect(() => {
-    if (registrationsAvailable || !isFormOpen) {
-      return;
-    }
-
-    setIsCreatingCompetitor(false);
-
-    setEditingCompetitor(null);
-  }, [registrationsAvailable, isFormOpen]);
 
   useEffect(() => {
     if (isFormOpen || !shouldRestoreScrollRef.current) {
@@ -278,9 +268,7 @@ export function DelegationManager({
     deleteCompetitorMutation.mutate(competitorPendingRemoval.id);
   }
 
-  async function handleCompetitorCreated(
-    _competitor: CompetitorMutationResponse,
-  ) {
+  async function handleCompetitorCreated() {
     await competitorsQuery.refetch();
 
     shouldRestoreScrollRef.current = true;
@@ -288,9 +276,7 @@ export function DelegationManager({
     closeForm();
   }
 
-  async function handleCompetitorUpdated(
-    _competitor: CompetitorMutationResponse,
-  ) {
+  async function handleCompetitorUpdated() {
     await competitorsQuery.refetch();
 
     shouldRestoreScrollRef.current = true;

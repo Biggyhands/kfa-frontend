@@ -45,7 +45,7 @@ export const transparencyContent: TransparencyContent = {
   documentsTitle: "Documentación institucional · actualización progresiva",
 
   documentsDescription:
-    "Los documentos oficiales que KFA autorice para publicación se incorporarán en este espacio de forma progresiva. No se publican documentos ficticios ni información no validada.",
+    "Los documentos oficiales que KFA autorice para publicación se incorporarán en este espacio de forma progresiva.",
 
   documents: [
     {

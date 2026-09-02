@@ -15,20 +15,19 @@ export function Hero({ content }: HeroProps) {
       />
 
       <Container className="relative grid min-h-screen grid-cols-1 items-center gap-16 pb-20 pt-36 sm:gap-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)] lg:gap-24 lg:pb-24 lg:pt-40 xl:gap-28">
-        {/* Content */}
         <div className="order-1 min-w-0 lg:pr-4">
           <div className="mb-5 flex items-center gap-3">
-            <span className="h-px w-8 shrink-0 bg-[var(--kfa-red)]" />
+            <span className="h-px w-8 shrink-0 bg-(--kfa-red)" />
 
             <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/70 sm:text-xs">
               {content.eyebrow}
             </p>
           </div>
 
-          <h1 className="max-w-[11ch] text-5xl font-black uppercase leading-[0.82] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[4.8rem] xl:text-[5.6rem] 2xl:text-[6.2rem]">
+          <h1 className="max-w-[11ch] font-[family-name:var(--font-barlow-condensed)] text-5xl font-extrabold uppercase leading-[0.86] tracking-[-0.012em] sm:text-6xl md:text-7xl lg:text-[4.8rem] xl:text-[5.6rem] 2xl:text-[6.2rem]">
             <span className="block">{content.title}</span>
 
-            <span className="block text-[var(--kfa-red)]">
+            <span className="block text-(--kfa-red)">
               {content.highlightedTitle}
             </span>
           </h1>
@@ -75,17 +74,16 @@ export function Hero({ content }: HeroProps) {
           </div>
         </div>
 
-        {/* Visual */}
         <div className="order-2 flex min-w-0 justify-center pt-4 sm:pt-8 lg:justify-end lg:pt-0">
           <div className="relative w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[430px] xl:max-w-[470px]">
             <div
               aria-hidden="true"
-              className="absolute -inset-10 rounded-full bg-[var(--kfa-blue)]/20 blur-3xl"
+              className="absolute -inset-10 rounded-full bg-(--kfa-blue)/20 blur-3xl"
             />
 
             <div
               aria-hidden="true"
-              className="absolute -inset-5 rounded-full border border-[var(--kfa-red)]/20"
+              className="absolute -inset-5 rounded-full border border-(--kfa-red)/20"
             />
 
             <div className="relative aspect-[1600/2187] overflow-hidden border border-white/10 bg-black shadow-2xl">
@@ -99,7 +97,7 @@ export function Hero({ content }: HeroProps) {
               />
             </div>
 
-            <div className="absolute -bottom-4 right-1 grid size-20 place-items-center rounded-full bg-[var(--kfa-red)] text-center shadow-xl sm:size-24">
+            <div className="absolute -bottom-4 right-1 grid size-20 place-items-center rounded-full bg-(--kfa-red) text-center shadow-xl sm:size-24">
               <div>
                 <strong className="block font-[family-name:var(--font-barlow-condensed)] text-2xl font-black leading-none">
                   KFA

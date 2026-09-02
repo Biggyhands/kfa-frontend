@@ -62,6 +62,15 @@ export function useDelegationSession({
     setSession(null);
   }, [storageKey]);
 
+  /*
+   * Este efecto inicializa la sesión desde
+   * la URL o sessionStorage.
+   *
+   * Los setState son intencionales porque
+   * estamos sincronizando el estado React
+   * con almacenamiento/URL del navegador.
+   */
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -75,8 +84,8 @@ export function useDelegationSession({
 
     /*
      * Prioridad 1:
-     * Si el enlace trae delegationId + token,
-     * guardamos esa sesión.
+     * si el enlace trae delegationId
+     * + token, usamos esa sesión.
      */
     if (delegationId && token) {
       const urlSession: DelegationSession = {
@@ -89,8 +98,8 @@ export function useDelegationSession({
       setSession(urlSession);
 
       /*
-       * Quitamos inmediatamente las
-       * credenciales de la URL visible.
+       * Quitamos las credenciales de
+       * la URL visible inmediatamente.
        */
       currentUrl.searchParams.delete("delegationId");
 
@@ -112,11 +121,10 @@ export function useDelegationSession({
     }
 
     /*
-     * Si solamente viene uno de los dos,
-     * no consideramos la URL válida.
-     *
-     * También retiramos cualquier token
-     * incompleto de la URL.
+     * Si llega solo uno de los dos
+     * parámetros, la URL no es válida.
+     * Limpiamos cualquier credencial
+     * incompleta.
      */
     if (delegationId || token) {
       currentUrl.searchParams.delete("delegationId");
@@ -136,13 +144,14 @@ export function useDelegationSession({
 
     /*
      * Prioridad 2:
-     * Intentamos recuperar una sesión
-     * guardada previamente.
+     * intentamos recuperar la sesión
+     * guardada en sessionStorage.
      */
     const storedSession = sessionStorage.getItem(storageKey);
 
     if (!storedSession) {
       setSession(null);
+
       setIsReady(true);
 
       return;
@@ -155,6 +164,7 @@ export function useDelegationSession({
         sessionStorage.removeItem(storageKey);
 
         setSession(null);
+
         setIsReady(true);
 
         return;
@@ -168,7 +178,8 @@ export function useDelegationSession({
     }
 
     setIsReady(true);
-  }, [router, slug, storageKey]);
+  }, [router, storageKey]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return {
     session,

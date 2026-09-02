@@ -1,6 +1,7 @@
 "use client";
 
 import { LoaderCircle, ShieldCheck, Users } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { DelegationForm } from "./delegation-form";
 import { DelegationManager } from "./delegation-manager";
@@ -20,9 +21,30 @@ export function TournamentRegistrationFlow({
     slug,
   });
 
+  const managementTopRef = useRef<HTMLDivElement>(null);
+
+  const shouldScrollToManagementRef = useRef(false);
+
   function handleDelegationCreated(nextSession: DelegationSession) {
+    shouldScrollToManagementRef.current = true;
+
     saveSession(nextSession);
   }
+
+  useEffect(() => {
+    if (!session || !shouldScrollToManagementRef.current) {
+      return;
+    }
+
+    shouldScrollToManagementRef.current = false;
+
+    requestAnimationFrame(() => {
+      managementTopRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [session]);
 
   if (!isReady) {
     return (
@@ -60,7 +82,10 @@ export function TournamentRegistrationFlow({
   }
 
   return (
-    <div className="overflow-hidden border border-black/10 bg-white text-black shadow-[0_30px_80px_rgba(0,0,0,0.07)]">
+    <div
+      ref={managementTopRef}
+      className="scroll-mt-24 overflow-hidden border border-black/10 bg-white text-black shadow-[0_30px_80px_rgba(0,0,0,0.07)] sm:scroll-mt-28"
+    >
       <div className="grid grid-cols-1 border-b border-black/10 lg:grid-cols-[1.35fr_0.65fr]">
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex items-start gap-4">
@@ -68,7 +93,7 @@ export function TournamentRegistrationFlow({
               <ShieldCheck aria-hidden="true" size={20} />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-(--kfa-red)">
                 Paso 02
               </p>
@@ -91,7 +116,7 @@ export function TournamentRegistrationFlow({
               <Users aria-hidden="true" size={17} />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-(--kfa-blue-dark)">
                 Sesión de gestión activa
               </p>

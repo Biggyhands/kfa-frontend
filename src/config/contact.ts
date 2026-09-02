@@ -88,7 +88,7 @@ export const contactContent: ContactContent = {
     "Aquí puedes revisar qué información pide cada tipo de solicitud y cuál es la ruta adecuada para cada persona o institución.",
 
   detailsIntro: [
-    "La página de contacto debe funcionar como el punto de conversión principal del sitio web. Debe permitir que cada visitante encuentre rápidamente la ruta adecuada según su interés: clase de prueba, inscripción, información para padres, alianzas, donaciones, voluntariado, vinculación de dojos, seminarios, masterclasses o contacto institucional.",
+    "Diseñamos este espacio para conectarte exactamente con lo que buscas. Ya sea que quieras agendar tu primera clase de prueba, inscribirte, sumarte como voluntario o activar una alianza con tu dojo.",
 
     "Estamos listos para orientarte. Escríbenos y te ayudamos a encontrar el programa, alianza o ruta de vinculación más adecuada.",
   ],
@@ -125,40 +125,9 @@ export const contactContent: ContactContent = {
 
     {
       id: "formularios-recomendados",
-      title: "Formularios recomendados",
+      title: "",
 
-      items: [
-        {
-          title: "Quiero tomar una clase de prueba",
-          description:
-            "Nombre, edad, programa de interés, disponibilidad horaria y contacto.",
-        },
-        {
-          title: "Información para padres",
-          description:
-            "Edad del niño o joven, experiencia previa, objetivo principal y canal preferido de respuesta.",
-        },
-        {
-          title: "Quiero vincular mi dojo",
-          description:
-            "País, ciudad, nombre del dojo, instructor responsable, disciplinas, trayectoria y datos de contacto.",
-        },
-        {
-          title: "Quiero ser aliado o patrocinador",
-          description:
-            "Tipo de entidad, contacto responsable, interés de apoyo, modalidad de alianza y ciudad.",
-        },
-        {
-          title: "Quiero donar",
-          description:
-            "Tipo de aporte, programa de interés, datos de contacto y preferencia de seguimiento.",
-        },
-        {
-          title: "Quiero información sobre seminarios",
-          description:
-            "Disciplina, nivel, ciudad, dojo o academia y disponibilidad.",
-        },
-      ],
+      items: [],
     },
 
     {

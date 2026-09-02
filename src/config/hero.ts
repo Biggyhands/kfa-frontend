@@ -43,6 +43,6 @@ export const heroContent: HeroContent = {
     },
   ],
 
-  imageSrc: "/images/animacion.png",
+  imageSrc: "/images/KFA-hero.jpg",
   imageAlt: "Identidad visual de Kyokushin Fight Academy",
 };
